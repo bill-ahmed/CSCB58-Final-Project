@@ -36,8 +36,8 @@
 # -------------------------------------------------------------------------- #
 
 
-set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE115F29C7
+set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name TOP_LEVEL_ENTITY Motion_Pong
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "22:14:30  JULY 11, 2019"
@@ -1114,10 +1114,10 @@ set_instance_assignment -name IO_MAXIMUM_TOGGLE_RATE "0 MHz" -to SW
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name VERILOG_FILE Control.v
+set_global_assignment -name VERILOG_FILE verilog_modules/Datapath.v
+set_global_assignment -name VERILOG_FILE verilog_modules/Control.v
 set_global_assignment -name VERILOG_FILE verilog_modules/Hex_Display.v
 set_global_assignment -name VERILOG_FILE Motion_Pong.v
-set_global_assignment -name VERILOG_FILE Datapath.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_pll.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_controller.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_address_translator.v
