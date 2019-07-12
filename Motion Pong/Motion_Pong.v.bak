@@ -83,7 +83,7 @@ module Motion_Pong
     wire waited, done, sel_col;
 
     // instantiate a control module
-    Control control0(
+    control control0(
         .clock(CLOCK_50),
         .resetn(resetn),
         .go(SW[17]),
@@ -103,7 +103,7 @@ module Motion_Pong
     );
 
     // instantiate a datapath module
-    Datapath datapath0(
+    datapath datapath0(
         .clock(CLOCK_50),
         .resetn(resetn),
 
