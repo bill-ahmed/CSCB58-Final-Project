@@ -49,7 +49,27 @@ What is your backup plan if things don't work out as planned?
 
 Weekly Reports
 --------------
-TBA
+*** July 12th, 2019 ***
+
+- DONE:
+	- worked on connecting HC-SR04 Ultrasonic Sensor to DE2 board via breadboard
+		- created verilog module to decode and display signals from the HC-SR04 
+		- Got basic input/output working with "trigger" and "echo" signals
+
+- TO-DO:
+	- Implement ratedivider for ultrasonic sensor
+	- Calculate distance based on time intervals for "trigger" and "echo" signals
+
+
+*** July 19th, 2019 ***
+
+
+
+*** July 26th, 2019 ***
+
+
+
+*** August 2nd, 2019 ***
 
 
 References
