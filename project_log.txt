@@ -55,10 +55,16 @@ Weekly Reports
 	- worked on connecting HC-SR04 Ultrasonic Sensor to DE2 board via breadboard
 		- created verilog module to decode and display signals from the HC-SR04 
 		- Got basic input/output working with "trigger" and "echo" signals
+	- Worked on getting the animation functional
+		- Got the plotting and "erasing" or pixels functional with a delay counter
+		- Get the pixel animated moving back and forth
 
 - TO-DO:
 	- Implement ratedivider for ultrasonic sensor
 	- Calculate distance based on time intervals for "trigger" and "echo" signals
+	- Extend the animation to be able to move a ball around the screen
+	- Collision detection
+	- Player paddles and their input
 
 
 *** July 19th, 2019 ***
