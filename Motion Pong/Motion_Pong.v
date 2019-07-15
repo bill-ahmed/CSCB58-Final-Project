@@ -64,7 +64,7 @@ module Motion_Pong
 			.VGA_BLANK(VGA_BLANK_N),
 			.VGA_SYNC(VGA_SYNC_N),
 			.VGA_CLK(VGA_CLK));
-		defparam VGA.RESOLUTION = "160x120";
+		defparam VGA.RESOLUTION = "320x240";
 		defparam VGA.MONOCHROME = "FALSE";
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
@@ -77,10 +77,11 @@ module Motion_Pong
     wire ld_x, ld_y;
 
     // counter wires
-    wire enable_posCounter, enable_waitCounter;
+    wire enable_posCounter_W, enable_posCounter_B;
+	wire enable_delayCounter;
 
     // helper wires
-    wire waited, done, sel_col;
+    wire waited, doneW, doneB, sel_col;
 
     // instantiate a control module
     Control control0(
@@ -88,15 +89,17 @@ module Motion_Pong
         .resetn(resetn),
         .go(SW[17]),
 
-        .done(done),
+        .doneW(doneW),
+		.doneB(doneB),
         .waited(waited),
 
         .plot(writeEn),
         .ld_x_out(ld_x),
         .ld_y_out(ld_y),
         .sel_col(sel_col),
-        .enable_posCounter(enable_posCounter),
-        .enable_waitCounter(enable_waitCounter),
+        .enable_posCounter_W(enable_posCounter_W),
+		.enable_posCounter_B(enable_posCounter_B),
+        .enable_delayCounter(enable_delayCounter),
 
         .HEX0(HEX0),
         .HEX2(HEX2)
@@ -107,16 +110,18 @@ module Motion_Pong
         .clock(CLOCK_50),
         .resetn(resetn),
 
-        .data(SW[9:0]),
+        .data(SW[11:0]),
         .ld_x(ld_x),
         .ld_y(ld_y),
         .sel_col(sel_col),
-        .enable_posCounter(enable_posCounter),
-        .enable_waitCounter(enable_waitCounter),
+        .enable_posCounter_W(enable_posCounter_W),
+		.enable_posCounter_B(enable_posCounter_B),
+        .enable_delayCounter(enable_delayCounter),
 
         .x_out(x),
         .y_out(y),
-        .done(done),
+        .doneW(doneW),
+		.doneB(doneB),
         .waited(waited),
         .colour_out(colour)
     );
