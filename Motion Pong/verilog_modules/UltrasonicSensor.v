@@ -1,4 +1,4 @@
-module UltrasonicSensor(CLOCK_50, SW, GPIO, HEX0, HEX1, HEX2);
+module UltrasonicSensor(CLOCK_50, SW, GPIO, HEX0, HEX1, HEX4, HEX5);
     input CLOCK_50;
     input [17:0] SW;
 
@@ -6,7 +6,8 @@ module UltrasonicSensor(CLOCK_50, SW, GPIO, HEX0, HEX1, HEX2);
 
     output [6:0] HEX0;
     output [6:0] HEX1;
-    output [6:0] HEX2;
+    output [6:0] HEX4;
+    output [6:0] HEX5;
 
     // wire newClock;
 
@@ -24,12 +25,20 @@ module UltrasonicSensor(CLOCK_50, SW, GPIO, HEX0, HEX1, HEX2);
     // assign newClock = (countDownFrom == 28'b0) ? 1 : 0;
 
     wire [25:0] sensorDistance;
+    wire [25:0] sensorDistance2;
 
     usensor myPercolatingSensor(
         .distance(sensorDistance),
         .trig(GPIO[1]),
         .echo(GPIO[3]),
         .clock(CLOCK_50)
+    );
+
+    usensor myPercolatingSensorTWOO(
+      .distance(sensorDistance2),
+      .trig(GPIO[5]),
+      .echo(GPIO[7]),
+      .clock(CLOCK_50)
     );
 
     // assign GPIO[1] = CLOCK_50; // Send trigger
@@ -44,8 +53,13 @@ module UltrasonicSensor(CLOCK_50, SW, GPIO, HEX0, HEX1, HEX2);
     );
 
     Hex_display my_hex4(
-        .IN(sensorDistance[11:8]),
-        .OUT(HEX2)
+        .IN(sensorDistance2[3:0]),
+        .OUT(HEX4)
+    );
+
+    Hex_display my_hex5(
+      .IN(sensorDistance2[7:4]),
+      .OUT(HEX5)
     );
 
 endmodule
