@@ -64,7 +64,7 @@ module Motion_Pong
 			.VGA_BLANK(VGA_BLANK_N),
 			.VGA_SYNC(VGA_SYNC_N),
 			.VGA_CLK(VGA_CLK));
-		defparam VGA.RESOLUTION = "320x240";
+		defparam VGA.RESOLUTION = "160x120";
 		defparam VGA.MONOCHROME = "FALSE";
 		defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 		defparam VGA.BACKGROUND_IMAGE = "black.mif";
@@ -74,14 +74,22 @@ module Motion_Pong
     
     // Instantiate the wires between the control and datapath
     // register wires
-    wire ld_x, ld_y;
+    wire ld_bx, ld_by;
+	wire ld_p1x, ld_p1y;
+	wire ld_p2x, ld_p2y;
 
     // counter wires
-    wire enable_posCounter_W, enable_posCounter_B;
-	wire enable_delayCounter;
+    wire en_B_shapeCounter_D, en_B_shapeCounter_E;
+	wire en_P1_shapeCounter_D, en_P1_shapeCounter_E;
+	wire en_P2_shapeCounter_D, en_P2_shapeCounter_E;
+	wire en_delayCounter;
 
     // helper wires
-    wire waited, doneW, doneB, sel_col;
+    wire fin_B_D, fin_B_E;
+	wire fin_P1_D, fin_P1_E;
+	wire fin_P2_D, fin_P2_E;
+	wire fin_Wait;
+	wire [1:0] sel_out, sel_col;
 
     // instantiate a control module
     Control control0(
@@ -89,17 +97,39 @@ module Motion_Pong
         .resetn(resetn),
         .go(SW[17]),
 
-        .doneW(doneW),
-		.doneB(doneB),
-        .waited(waited),
+        .fin_B_D(fin_B_D),
+		.fin_B_E(fin_B_E),
 
-        .plot(writeEn),
-        .ld_x_out(ld_x),
-        .ld_y_out(ld_y),
-        .sel_col(sel_col),
-        .enable_posCounter_W(enable_posCounter_W),
-		.enable_posCounter_B(enable_posCounter_B),
-        .enable_delayCounter(enable_delayCounter),
+        .ld_bx_out(ld_bx),
+        .ld_by_out(ld_by),
+
+		.fin_P1_D(fin_P1_D),
+		.fin_P1_E(fin_P1_E),
+
+        .ld_p1x_out(ld_p1x),
+        .ld_p1y_out(ld_p1y),
+
+		.fin_P2_D(fin_P2_D),
+		.fin_P2_E(fin_P2_E),
+
+        .ld_p2x_out(ld_p2x),
+        .ld_p2y_out(ld_p2y),
+
+        .en_B_shapeCounter_D(en_B_shapeCounter_D),
+		.en_B_shapeCounter_E(en_B_shapeCounter_E),
+
+		.en_P1_shapeCounter_D(en_P1_shapeCounter_D),
+		.en_P1_shapeCounter_E(en_P1_shapeCounter_E),
+
+		.en_P2_shapeCounter_D(en_P2_shapeCounter_D),
+		.en_P2_shapeCounter_E(en_P2_shapeCounter_E),
+
+		.fin_Wait(fin_Wait),
+        .en_delayCounter(en_delayCounter),
+
+		.plot(writeEn),
+		.sel_out(sel_out),
+		.sel_col(sel_col),
 
         .HEX0(HEX0),
         .HEX2(HEX2)
@@ -110,19 +140,44 @@ module Motion_Pong
         .clock(CLOCK_50),
         .resetn(resetn),
 
-        .data(SW[11:0]),
-        .ld_x(ld_x),
-        .ld_y(ld_y),
-        .sel_col(sel_col),
-        .enable_posCounter_W(enable_posCounter_W),
-		.enable_posCounter_B(enable_posCounter_B),
-        .enable_delayCounter(enable_delayCounter),
+        .data(SW[17:0]),
+
+		.sel_out(sel_out),
+		.sel_col(sel_col),
+
+        .ld_bx(ld_bx),
+        .ld_by(ld_by),
+
+		.ld_p1x(ld_p1x),
+		.ld_p1y(ld_p1y),
+
+		.ld_p2x(ld_p2x),
+		.ld_p2y(ld_p2y),
+
+        .en_B_shapeCounter_D(en_B_shapeCounter_D),
+		.en_B_shapeCounter_E(en_B_shapeCounter_E),
+
+		.en_P1_shapeCounter_D(en_P1_shapeCounter_D),
+		.en_P1_shapeCounter_E(en_P1_shapeCounter_E),
+
+		.en_P2_shapeCounter_D(en_P2_shapeCounter_D),
+		.en_P2_shapeCounter_E(en_P2_shapeCounter_E),
+
+        .en_delayCounter(en_delayCounter),
 
         .x_out(x),
         .y_out(y),
-        .doneW(doneW),
-		.doneB(doneB),
-        .waited(waited),
-        .colour_out(colour)
+		.colour_out(colour),
+
+        .fin_Wait(fin_Wait),
+
+        .fin_B_D(fin_B_D),
+		.fin_B_E(fin_B_E),
+
+		.fin_P1_D(fin_P1_D),
+		.fin_P1_E(fin_P1_E),
+
+		.fin_P2_D(fin_P2_D),
+		.fin_P2_E(fin_P2_E)
     );
 endmodule
