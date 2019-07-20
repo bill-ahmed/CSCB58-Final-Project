@@ -77,10 +77,11 @@ Weekly Reports
 	- Worked on getting the sensors set up and translating them to user inputted distance
 		- Connected the sensors successfully
 		- Added a distance function that translated the sensor input to distance
-	- Connected the sensors to the paddles, allowing sensor inputted movement in the game
+	- Connected the sensors to the paddles, allowing sensor inputted movement in the game; still WIP
 - TO-DO:
 	- Get all the different parts of the game into a single package that functions as the game of Pong should
 	- Add collision detection to the ball and paddles
+	- debug issues with controlling the paddles via ultrasonic sensors
 	- Smoothen out bugs and other hiccups
 	- Testing
 
