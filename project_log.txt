@@ -52,8 +52,8 @@ Weekly Reports
 *** July 12th, 2019 ***
 
 - DONE:
-	- worked on connecting HC-SR04 Ultrasonic Sensor to DE2 board via breadboard
-		- created verilog module to decode and display signals from the HC-SR04 
+	- Worked on connecting HC-SR04 Ultrasonic Sensor to DE2 board via breadboard
+		- Created verilog module to decode and display signals from the HC-SR04 
 		- Got basic input/output working with "trigger" and "echo" signals
 	- Worked on getting the animation functional
 		- Got the plotting and "erasing" or pixels functional with a delay counter
@@ -69,6 +69,20 @@ Weekly Reports
 
 *** July 19th, 2019 ***
 
+- DONE:
+	- Worked on getting the animation working and the basic game of pong functional
+		- Added the paddles and ball
+		- Added animation
+		- Added movement from user input with the buttons and switches
+	- Worked on getting the sensors set up and translating them to user inputted distance
+		- Connected the sensors successfully
+		- Added a distance function that translated the sensor input to distance
+	- Connected the sensors to the paddles, allowing sensor inputted movement in the game
+- TO-DO:
+	- Get all the different parts of the game into a single package that functions as the game of Pong should
+	- Add collision detection to the ball and paddles
+	- Smoothen out bugs and other hiccups
+	- Testing
 
 
 *** July 26th, 2019 ***
