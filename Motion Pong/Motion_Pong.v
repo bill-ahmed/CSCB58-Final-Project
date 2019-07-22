@@ -7,6 +7,9 @@ module Motion_Pong
         SW,
         HEX0,
         HEX2,
+		HEX4,
+		HEX5,
+		GPIO,
 		// The ports below are for the VGA output.  Do not change.
 		VGA_CLK,   						//	VGA Clock
 		VGA_HS,							//	VGA H_SYNC
@@ -23,7 +26,11 @@ module Motion_Pong
 	// Declare your inputs and outputs here
 	input   [17:0]  SW;
 
-    output [6:0] HEX0, HEX2;
+	inout [35:0] GPIO;
+
+
+    output [6:0] HEX0, HEX2, HEX4, HEX5;
+	wire [9:0] sensor_1, sensor_2;
 
 
 	// Do not change the following outputs
@@ -141,6 +148,8 @@ module Motion_Pong
         .resetn(resetn),
 
         .data(SW[17:0]),
+		.sensor_1(sensor_1),
+		.sensor_2(sensor_2),
 
 		.sel_out(sel_out),
 		.sel_col(sel_col),
@@ -180,4 +189,22 @@ module Motion_Pong
 		.fin_P2_D(fin_P2_D),
 		.fin_P2_E(fin_P2_E)
     );
+
+	 UltrasonicSensor mySensor(
+        .CLOCK_50(CLOCK_50),
+        .GPIO(GPIO[35:0]),
+        .sensor_1(sensor_1),
+        .sensor_2(sensor_2),
+    );
+
+	Hex_display hd4(
+        .IN(sensor_1),
+        .OUT(HEX4)
+    );
+
+	Hex_display hd5(
+        .IN(sensor_2),
+        .OUT(HEX5)
+    );
+
 endmodule

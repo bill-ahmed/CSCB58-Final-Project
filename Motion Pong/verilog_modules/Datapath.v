@@ -2,6 +2,8 @@ module Datapath(clock,
                 resetn,
                 
                 data,
+                sensor_1,
+                sensor_2,
 
                 sel_out,
                 sel_col,
@@ -62,11 +64,13 @@ module Datapath(clock,
     input en_B_shapeCounter_E;
     
     /* PADDLE 1 CONTROLS */
+    input [9:0] sensor_1;   // Data from ultrasonic sensor
     input ld_p1x, ld_p1y;
     input en_P1_shapeCounter_D;
     input en_P1_shapeCounter_E;
 
-    /* PADDLE 1 CONTROLS */
+    /* PADDLE 2 CONTROLS */
+    input [9:0] sensor_2;   // Data from ultrasonic sensor
     input ld_p2x, ld_p2y;
     input en_P2_shapeCounter_D;
     input en_P2_shapeCounter_E;
@@ -100,12 +104,12 @@ module Datapath(clock,
     reg [9:0] B_YposCounter;
 
     // Registers for paddle1 counters
-    reg [5:0] P1_shapeCounter_D;
+    reg [8:0] P1_shapeCounter_D;
     reg [5:0] P1_shapeCounter_E;
     reg [9:0] P1_posCounter;
 
     // Registers for paddle1 counters
-    reg [5:0] P2_shapeCounter_D;
+    reg [8:0] P2_shapeCounter_D;
     reg [5:0] P2_shapeCounter_E;
     reg [9:0] P2_posCounter;
 
@@ -182,7 +186,7 @@ module Datapath(clock,
     always @(posedge clock)
     begin
         if(en_delayCounter == 28'd0)
-            delayCounter <= 28'd400000 - 1'b1;
+            delayCounter <= 28'd833333 - 1'b1;
         else if(en_delayCounter == 1'b1)
             delayCounter <= delayCounter - 1'b1;
     end
@@ -247,7 +251,9 @@ module Datapath(clock,
         if(resetn == 1'b0)
             P1_shapeCounter_D <= 6'd0;
         else if(en_P1_shapeCounter_D == 1'b1)
-            P1_shapeCounter_D <= P1_shapeCounter_D + 1'b1;
+        begin    
+            P1_shapeCounter_D <= P1_shapeCounter_D + 1'b1; 
+        end
         else if(en_P1_shapeCounter_E == 1'b1)
             P1_shapeCounter_E <= P1_shapeCounter_E + 1'b1;
     end
@@ -261,10 +267,13 @@ module Datapath(clock,
     begin
         if(resetn == 1'b0)
             P1_posCounter <= 10'd0;
-        else if((P1_move == 1'b1) & (P1_dir == data[5]))
-            P1_posCounter <= P1_posCounter + 1'b1;
-        else if((P1_move == 1'b1) & (P1_dir == ~data[5]))
-            P1_posCounter <= P1_posCounter - 1'b1;
+        else if((P1_move == 1'b1) & (sensor_1 < 10'd40))
+            P1_posCounter <= sensor_1 * 3;
+        
+        // else if((P1_move == 1'b1) & (P1_dir == data[5]))
+        //     P1_posCounter <= P1_posCounter + 1'b1;
+        // else if((P1_move == 1'b1) & (P1_dir == ~data[5]))
+        //     P1_posCounter <= P1_posCounter - 1'b1;
     end    
 
 
@@ -295,10 +304,12 @@ module Datapath(clock,
     begin
         if(resetn == 1'b0)
             P2_posCounter <= 10'd0;
-        else if((P2_move == 1'b1) & (P2_dir == data[4]))
-            P2_posCounter <= P2_posCounter + 1'b1;
-        else if((P2_move == 1'b1) & (P2_dir == ~data[4]))
-            P2_posCounter <= P2_posCounter - 1'b1;
+        else if((P2_move == 1'b1) & (sensor_2 < 10'd40))
+            P2_posCounter <= sensor_2 * 3;
+        // else if((P2_move == 1'b1) & (P2_dir == data[4]))
+        //     P2_posCounter <= P2_posCounter + 1'b1;
+        // else if((P2_move == 1'b1) & (P2_dir == ~data[4]))
+        //     P2_posCounter <= P2_posCounter - 1'b1;
     end    
 
 
@@ -366,7 +377,7 @@ module Datapath(clock,
     begin
         if(OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter == 10'd0)
             B_X_dir <= 1'b1;
-        else if(OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter == 10'd156)
+        else if(OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter == 10'd160)
             B_X_dir <= 1'b0;
     end
 
