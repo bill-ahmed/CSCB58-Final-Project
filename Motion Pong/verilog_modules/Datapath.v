@@ -267,8 +267,25 @@ module Datapath(clock,
     begin
         if(resetn == 1'b0)
             P1_posCounter <= 10'd0;
-        else if((P1_move == 1'b1) & (sensor_1 < 10'd40))
-            P1_posCounter <= sensor_1 * 3;
+        // else if((P1_move == 1'b1) & (sensor_1 < 10'd40))
+        //     P1_posCounter <= sensor_1 * 3;
+
+
+        else if((P1_move == 1'b1) & (P1_posCounter < sensor_1 * 7) & (sensor_1 < 5'd17))
+           if(sensor_1 * 7 - P1_posCounter > 50)
+                P1_posCounter <= P1_posCounter + 4'd8;
+            else if(sensor_1 * 7 - P1_posCounter > 5)
+                P1_posCounter <= P1_posCounter + 2'd2;
+            else
+                P1_posCounter <= P1_posCounter + 1'b1;
+        
+        else if((P1_move == 1'b1) & (P1_posCounter > sensor_1 * 7) & (sensor_1 < 5'd17))
+            if(P1_posCounter - sensor_1 * 7 > 50)
+                P1_posCounter <= P1_posCounter - 4'd8;
+            else if(P1_posCounter - sensor_1 * 7 > 5)
+                P1_posCounter <= P1_posCounter - 2'd2;
+            else
+                P1_posCounter <= P1_posCounter - 1'b1;
         
         // else if((P1_move == 1'b1) & (P1_dir == data[5]))
         //     P1_posCounter <= P1_posCounter + 1'b1;
@@ -304,8 +321,24 @@ module Datapath(clock,
     begin
         if(resetn == 1'b0)
             P2_posCounter <= 10'd0;
-        else if((P2_move == 1'b1) & (sensor_2 < 10'd40))
-            P2_posCounter <= sensor_2 * 3;
+        //else if((P2_move == 1'b1) & (sensor_2 < 10'd40))
+          //  P2_posCounter <= sensor_2 * 3;
+
+        else if((P2_move == 1'b1) & (P2_posCounter < sensor_2 * 7) & (sensor_2 < 5'd17))
+            if(sensor_2 * 7 - P2_posCounter > 50)
+                P2_posCounter <= P2_posCounter + 4'd8;
+            else if(sensor_2 * 7 - P2_posCounter > 5)
+                P2_posCounter <= P2_posCounter + 2'd2;
+            else
+                P2_posCounter <= P2_posCounter + 1'b1;
+        
+        else if((P2_move == 1'b1) & (P2_posCounter > sensor_2 * 7) & (sensor_2 < 5'd17))
+            if(P2_posCounter - sensor_2 * 7 > 50)
+                P2_posCounter <= P2_posCounter - 4'd8;
+            else if(P2_posCounter - sensor_2 * 7 > 5)
+                P2_posCounter <= P2_posCounter - 2'd2;
+            else
+                P2_posCounter <= P2_posCounter - 1'b1;
         // else if((P2_move == 1'b1) & (P2_dir == data[4]))
         //     P2_posCounter <= P2_posCounter + 1'b1;
         // else if((P2_move == 1'b1) & (P2_dir == ~data[4]))
@@ -351,7 +384,7 @@ module Datapath(clock,
         if(resetn == 1'b0)
             OG_P1_y <= 10'd0;
         else if(ld_by == 1'b1)
-            OG_P1_y <= 10'd112;
+            OG_P1_y <= 10'd120;
     end
 
     // register for x paddle1
@@ -360,7 +393,7 @@ module Datapath(clock,
         if(resetn == 1'b0)
             OG_P2_x <= 10'd0;
         else if(ld_p2x == 1'b1)
-            OG_P2_x <= 10'd156;
+            OG_P2_x <= 10'd158;
     end
 
     // register for y paddle1
@@ -369,26 +402,34 @@ module Datapath(clock,
         if(resetn == 1'b0)
             OG_P2_y <= 10'd0;
         else if(ld_p2y == 1'b1)
-            OG_P2_y <= 10'd112;
+            OG_P2_y <= 10'd120;
     end
 
     // Collision Detection
+    // Ball detection with the walls
     always @(posedge clock)
     begin
-        if(OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter == 10'd0)
+        if(OG_B_x + B_XposCounter == 10'd0)
             B_X_dir <= 1'b1;
         else if(OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter == 10'd160)
             B_X_dir <= 1'b0;
-    end
+        else if((OG_B_x + B_XposCounter == OG_P1_x + 1'b1) &
+           (OG_B_y + B_YposCounter >= OG_P1_y + sensor_1 * 7) &
+           (OG_B_y + B_shapeCounter_D[3:2] + B_shapeCounter_E[3:2] + B_YposCounter <= OG_P1_y + 4'd15 + sensor_1 * 7))
+            begin
+                B_X_dir <= B_X_dir + 1'b1;
+                B_Y_dir <= B_Y_dir + 1'b1;
+            end
+        else if((OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter == OG_P2_x) &
+           (OG_B_y + B_YposCounter >= OG_P2_y + sensor_2 * 7) &
+           (OG_B_y + B_shapeCounter_D[3:2] + B_shapeCounter_E[3:2] + B_YposCounter <= OG_P2_y + 4'd15 + sensor_2 * 7))
 
-    always @(posedge clock)
-    begin
-        if(OG_B_y + B_shapeCounter_D[3:2] + B_shapeCounter_E[3:2] + B_YposCounter == 10'd0)
+            B_X_dir <= 1'b0;
+        else if(OG_B_y + B_shapeCounter_D[3:2] + B_shapeCounter_E[3:2] + B_YposCounter == 10'd0)
             B_Y_dir <= 1'b1;
         else if(OG_B_y + B_shapeCounter_D[3:2] + B_shapeCounter_E[3:2] + B_YposCounter == 10'd116)
             B_Y_dir <= 1'b0;
     end
-
 // ----------- END REGISTERS ----------- // 
 
     // assign the actual output
@@ -407,8 +448,8 @@ module Datapath(clock,
         begin
             case (sel_out)
                 2'd0: x_out = OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter;
-                2'd1: x_out = OG_P1_x + P1_shapeCounter_D[1:0] + P1_shapeCounter_E[1:0];
-                2'd2: x_out = OG_P2_x + P2_shapeCounter_D[1:0] + P2_shapeCounter_E[1:0];
+                2'd1: x_out = OG_P1_x + P1_shapeCounter_D[0] + P1_shapeCounter_E[0];
+                2'd2: x_out = OG_P2_x + P2_shapeCounter_D[0] + P2_shapeCounter_E[0];
                 default: x_out = OG_B_x + B_shapeCounter_D[1:0] + B_shapeCounter_E[1:0] + B_XposCounter;
             endcase
         end
