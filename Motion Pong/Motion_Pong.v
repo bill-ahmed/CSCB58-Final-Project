@@ -6,9 +6,12 @@ module Motion_Pong
 		// Your inputs and outputs here
         SW,
         HEX0,
+		HEX1,
         HEX2,
+		HEX3,
 		HEX4,
 		HEX5,
+		KEY,
 		GPIO,
 		// The ports below are for the VGA output.  Do not change.
 		VGA_CLK,   						//	VGA Clock
@@ -25,11 +28,11 @@ module Motion_Pong
 	
 	// Declare your inputs and outputs here
 	input   [17:0]  SW;
-
+	input [3:0] KEY;
 	inout [35:0] GPIO;
 
 
-    output [6:0] HEX0, HEX2, HEX4, HEX5;
+    output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
 	wire [9:0] sensor_1, sensor_2;
 
 
@@ -97,12 +100,26 @@ module Motion_Pong
 	wire fin_P2_D, fin_P2_E;
 	wire fin_Wait;
 	wire [1:0] sel_out, sel_col;
+	reg [27:0] gameSpeed;		// Determine the speed of the game, set by the user
+
+	always @(posedge CLOCK_50)
+	begin
+		if(KEY[0] == 1'b0)
+			gameSpeed = 28'd4000000 - 1'b1;
+		else if(KEY[1] == 1'b0)
+			gameSpeed <= 28'd2000000 - 1'b1;
+		else if(KEY[2] == 1'b0)
+			gameSpeed <= 28'd833333 - 1'b1;
+		else if(KEY[3] == 1'b0)
+			gameSpeed <= 28'd416666 - 1'b1;
+
+	end
 
     // instantiate a control module
     Control control0(
         .clock(CLOCK_50),
         .resetn(resetn),
-        .go(SW[17]),
+        .go(gameSpeed == 28'd0 ? 1'b0 : 1'b1),
 
         .fin_B_D(fin_B_D),
 		.fin_B_E(fin_B_E),
@@ -136,20 +153,23 @@ module Motion_Pong
 
 		.plot(writeEn),
 		.sel_out(sel_out),
-		.sel_col(sel_col),
-
-        .HEX0(HEX0),
-        .HEX2(HEX2)
+		.sel_col(sel_col)
     );
 
     // instantiate a datapath module
     Datapath datapath0(
         .clock(CLOCK_50),
         .resetn(resetn),
+		.gameSpeed(gameSpeed),
 
         .data(SW[17:0]),
 		.sensor_1(sensor_1),
 		.sensor_2(sensor_2),
+
+		.HEX0(HEX0),
+		.HEX1(HEX1),
+        .HEX2(HEX2),
+		.HEX3(HEX3),
 
 		.sel_out(sel_out),
 		.sel_col(sel_col),
@@ -197,14 +217,14 @@ module Motion_Pong
         .sensor_2(sensor_2),
     );
 
-	Hex_display hd4(
-        .IN(sensor_1),
-        .OUT(HEX4)
-    );
+	// Hex_display hd4(
+    //     .IN(sensor_1),
+    //     .OUT(HEX4)
+    // );
 
-	Hex_display hd5(
-        .IN(sensor_2),
-        .OUT(HEX5)
-    );
+	// Hex_display hd5(
+    //     .IN(sensor_2),
+    //     .OUT(HEX5)
+    // );
 
 endmodule

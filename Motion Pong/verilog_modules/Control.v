@@ -34,10 +34,8 @@ module Control( clock,
 
                 plot,
                 sel_out,
-                sel_col,
-
-                HEX0,
-                HEX2);
+                sel_col
+    );
     // absolute input signals
     input clock, resetn, go;
 
@@ -62,20 +60,20 @@ module Control( clock,
     output reg [1:0] sel_col;
     output reg [1:0] sel_out;
 
-    output [6:0] HEX0, HEX2;
+    //output [6:0] HEX0, HEX2;
 
     // declare registers for the FSM
     reg [5:0] current_state, next_state;
 
-    Hex_display hd1(
-        .IN(current_state[3:0]),
-        .OUT(HEX0)
-    );
+    // Hex_display hd1(
+    //     .IN(current_state[3:0]),
+    //     .OUT(HEX0)
+    // );
 
-    Hex_display hd2(
-        .IN(next_state[3:0]),
-        .OUT(HEX2)
-    );
+    // Hex_display hd2(
+    //     .IN(next_state[3:0]),
+    //     .OUT(HEX2)
+    // );
 
     // assign the states a value
     localparam  S_INIT = 5'd0,
