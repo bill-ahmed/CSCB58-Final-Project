@@ -295,7 +295,7 @@ module Datapath(clock,
         if(resetn == 1'b0)
             P1_Position <= 10'd0;
         else if((P1_move == 1'b1) & (P1_Position < (sensor_1 - 2'd2) * 7) & (sensor_1 < 5'd18))
-        # Move
+        // Move
         if((sensor_1 - 2'd2) * 7 - P1_Position > 100)
                 P1_Position <= P1_Position + 5'd10;
         else if((sensor_1 - 2'd2) * 7 - P1_Position > 3'd5)
