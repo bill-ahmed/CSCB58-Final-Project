@@ -88,6 +88,28 @@ Weekly Reports
 
 *** July 26th, 2019 ***
 
+- DONE:
+	- Worked on the collision detection
+		- Added collision detection to the paddles
+		- Added ball respawn when hitting the walls
+		- Added point increment during wall collision
+	- Worked on paddle movement
+		- Added ultrasonic sensors to the paddles
+		- Smoothened the movement from the jittery ultrasonic sensor input
+		- Testing done
+	- Added a point system
+		- Added correct point system to keep track of points on the HEX
+	_ Added different speeds and colour customixability to the ball and paddles
+		- The game speed can be altered
+		- Colour of balls and paddles can be changed separately
+	- Shoot the video presentation for the project
+_ TO-DO:
+	- Add a splash screen that disappears after game start
+	- Add the points on the screen itself instead of on the HEX
+	- Add an end-game screen of which player won
+	- Rainbow mode?
+	- Edit video presentation and upload
+
 
 
 *** August 2nd, 2019 ***
