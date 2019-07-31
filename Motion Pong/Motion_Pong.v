@@ -95,6 +95,7 @@ module Motion_Pong
 	wire en_delayCounter;
 	wire en_Text1;
 	wire en_reset_player_scores;
+	wire en_clr_scr;
 
     // helper wires
     wire fin_B_D, fin_B_E;
@@ -105,6 +106,7 @@ module Motion_Pong
 	wire fin_S2_D;
 	wire fin_Text1;
 	wire fin_game;
+	wire fin_clr_scr;
 	wire [2:0] sel_out;
 	wire [2:0] sel_col;
 	wire [4:0] sel_text;
@@ -142,6 +144,7 @@ module Motion_Pong
 
 		.fin_game(fin_game),
 		.fin_Text1(fin_Text1),
+		.fin_clr_scr(fin_clr_scr),
 
         .ld_Val_out(ld_Val),
 
@@ -158,6 +161,7 @@ module Motion_Pong
 		.en_Score2(en_Score2),
 
 		.en_Text1(en_Text1),
+		.en_clr_scr(en_clr_scr),
 
 		.en_reset_player_scores(en_reset_player_scores),
 
@@ -181,9 +185,7 @@ module Motion_Pong
 		.sensor_2(sensor_2),
 
 		.HEX0(HEX0),
-		.HEX1(HEX1),
         .HEX2(HEX2),
-		.HEX3(HEX3),
 
 		.sel_out(sel_out),
 		.sel_col(sel_col),
@@ -208,6 +210,7 @@ module Motion_Pong
         .en_delayCounter(en_delayCounter),
 
 		.en_reset_player_scores(en_reset_player_scores),
+		.en_clr_scr(en_clr_scr),
 
         .x_out(x),
         .y_out(y),
@@ -216,6 +219,8 @@ module Motion_Pong
         .fin_Wait(fin_Wait),
 
 		.fin_Text1(fin_Text1),
+		.fin_clr_scr(fin_clr_scr),
+
 		.fin_game(fin_game),
 
 		.fin_S1_D(fin_S1_D),

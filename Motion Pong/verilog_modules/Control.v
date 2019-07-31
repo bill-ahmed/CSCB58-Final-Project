@@ -15,6 +15,7 @@ module Control( clock,
 
                 fin_S1_D,
                 fin_S2_D,
+                fin_clr_scr,
 
                 fin_game,
 
@@ -30,6 +31,7 @@ module Control( clock,
                 en_P2_shapeCounter_E,
 
                 en_reset_player_scores,
+                en_clr_scr,
 
                 en_Score1,
                 en_Score2,
@@ -57,6 +59,7 @@ module Control( clock,
     input fin_S2_D;
     input fin_Text1;
     input fin_game;
+    input fin_clr_scr;
 
     // ouput signals
     output reg plot, ld_Val_out;
@@ -68,6 +71,7 @@ module Control( clock,
     output reg en_Score2;
     output reg en_Text1;
     output reg en_reset_player_scores;
+    output reg en_clr_scr;
 
     output reg [2:0] sel_col;
     output reg [2:0] sel_out;
@@ -83,13 +87,15 @@ module Control( clock,
                 S_LOAD_WAIT = 5'd1,
 				S_LOAD = 5'd2,
                 
-                S_DISPLAY_WAIT_PADDLE1 = 5'd18,
-                S_DISPLAY_PADDLE1 = 5'd19,
-                S_DISPLAY_WAIT_BALL = 5'd20,
-                S_DISPLAY_BALL = 5'd21,
-                S_DISPLAY_WAIT_PADDLE2 = 5'd22,
-                S_DISPLAY_PADDLE2 = 5'd23,
-                S_DISPLAY_DONE = 5'd24,
+                // S_DISPLAY_WAIT_PADDLE1 = 5'd18,
+                // S_DISPLAY_PADDLE1 = 5'd19,
+                // S_DISPLAY_WAIT_BALL = 5'd20,
+                // S_DISPLAY_BALL = 5'd21,
+                // S_DISPLAY_WAIT_PADDLE2 = 5'd22,
+                // S_DISPLAY_PADDLE2 = 5'd23,
+                // S_DISPLAY_DONE = 5'd24,
+                S_WAIT_CLEAR = 5'd23,
+                S_CLEAR  = 5'd24,
 
                 S_PLOT_WAIT_SCORE1 = 5'd25,
                 S_PLOT_SCORE1 = 5'd26,
@@ -122,50 +128,61 @@ module Control( clock,
             case (current_state)
                 S_INIT: next_state = S_LOAD_WAIT;
                 S_LOAD_WAIT: next_state = S_LOAD;
-                S_LOAD: next_state = S_DISPLAY_WAIT_PADDLE1;
+                S_LOAD: next_state = go ? S_CLEAR : S_LOAD;
 
-                S_DISPLAY_WAIT_PADDLE1: next_state = S_DISPLAY_PADDLE1;
-                S_DISPLAY_PADDLE1: next_state = fin_P1_D ? S_DISPLAY_WAIT_BALL : S_DISPLAY_PADDLE1;
+                // S_DISPLAY_WAIT_PADDLE1: next_state = S_DISPLAY_PADDLE1;
+                // S_DISPLAY_PADDLE1: next_state = fin_P1_D ? S_DISPLAY_WAIT_BALL : S_DISPLAY_PADDLE1;
 
-                S_DISPLAY_WAIT_BALL: next_state = S_DISPLAY_BALL;
-                S_DISPLAY_BALL: next_state = fin_B_D ? S_DISPLAY_WAIT_PADDLE2 : S_DISPLAY_BALL;
+                // S_DISPLAY_WAIT_BALL: next_state = S_DISPLAY_BALL;
+                // S_DISPLAY_BALL: next_state = fin_B_D ? S_DISPLAY_WAIT_PADDLE2 : S_DISPLAY_BALL;
                 
-                S_DISPLAY_WAIT_PADDLE2: next_state = S_DISPLAY_PADDLE2;
-                S_DISPLAY_PADDLE2: next_state = fin_P2_D ? S_DISPLAY_DONE : S_DISPLAY_PADDLE2;
+                // S_DISPLAY_WAIT_PADDLE2: next_state = S_DISPLAY_PADDLE2;
+                // S_DISPLAY_PADDLE2: next_state = fin_P2_D ? S_DISPLAY_DONE : S_DISPLAY_PADDLE2;
 
-                S_DISPLAY_DONE: next_state = go ? S_PLOT_WAIT_SCORE1 : S_DISPLAY_WAIT_PADDLE1;
+                // S_DISPLAY_DONE: next_state = go ? S_PLOT_WAIT_SCORE1 : S_DISPLAY_WAIT_PADDLE1;
+                //S_WAIT_CLEAR: next_state = S_CLEAR;
+                S_CLEAR: next_state = fin_clr_scr ? S_PLOT_SCORE1 : S_CLEAR;
 
-                S_PLOT_WAIT_SCORE1: next_state = S_PLOT_SCORE1;
-                S_PLOT_SCORE1: next_state = fin_S1_D ? S_PLOT_WAIT_PADDLE1 : S_PLOT_SCORE1;
+                // S_PLOT_WAIT_SCORE1: next_state = S_PLOT_SCORE1;
+                // S_PLOT_SCORE1: next_state = fin_S1_D ? S_PLOT_WAIT_PADDLE1 : S_PLOT_SCORE1;
+                S_PLOT_SCORE1: next_state = fin_S1_D ? S_PLOT_PADDLE1 : S_PLOT_SCORE1;
 
-                S_PLOT_WAIT_PADDLE1: next_state = S_PLOT_PADDLE1;
-                S_PLOT_PADDLE1: next_state = fin_P1_D ? S_PLOT_WAIT : S_PLOT_PADDLE1;
+                //S_PLOT_WAIT_PADDLE1: next_state = S_PLOT_PADDLE1;
+                // S_PLOT_PADDLE1: next_state = fin_P1_D ? S_PLOT_WAIT : S_PLOT_PADDLE1;
+                S_PLOT_PADDLE1: next_state = fin_P1_D ? S_PLOT : S_PLOT_PADDLE1;
 
-                S_PLOT_WAIT: next_state = S_PLOT;
-                S_PLOT: next_state = fin_B_D ? S_PLOT_WAIT_PADDLE2 : S_PLOT;
+                //S_PLOT_WAIT: next_state = S_PLOT;
+                // S_PLOT: next_state = fin_B_D ? S_PLOT_WAIT_PADDLE2 : S_PLOT;
+                S_PLOT: next_state = fin_B_D ? S_PLOT_PADDLE2 : S_PLOT;
 
-                S_PLOT_WAIT_PADDLE2: next_state = S_PLOT_PADDLE2;
-                S_PLOT_PADDLE2: next_state = fin_P2_D ? S_PLOT_WAIT_SCORE2 : S_PLOT_PADDLE2;
+               // S_PLOT_WAIT_PADDLE2: next_state = S_PLOT_PADDLE2;
+                // S_PLOT_PADDLE2: next_state = fin_P2_D ? S_PLOT_WAIT_SCORE2 : S_PLOT_PADDLE2;
+                S_PLOT_PADDLE2: next_state = fin_P2_D ? S_PLOT_SCORE2 : S_PLOT_PADDLE2;
 
-                S_PLOT_WAIT_SCORE2: next_state = S_PLOT_SCORE2;
-                S_PLOT_SCORE2: next_state = fin_S2_D ? S_WAIT_WAIT : S_PLOT_SCORE2;
+               //S_PLOT_WAIT_SCORE2: next_state = S_PLOT_SCORE2;
+                // S_PLOT_SCORE2: next_state = fin_S2_D ? S_WAIT_WAIT : S_PLOT_SCORE2;
+                S_PLOT_SCORE2: next_state = fin_S2_D ? S_WAIT : S_PLOT_SCORE2;                
 
-                S_WAIT_WAIT: next_state = S_WAIT;
-                S_WAIT: next_state = fin_Wait ? S_DELETE_WAIT_PADDLE1: S_WAIT;
+                //S_WAIT_WAIT: next_state = S_WAIT;
+                // S_WAIT: next_state = fin_Wait ? S_DELETE_WAIT_PADDLE1: S_WAIT;
+                S_WAIT: next_state = fin_Wait ? S_DELETE_PADDLE1: S_WAIT;
 
-                S_DELETE_WAIT_PADDLE1: next_state = S_DELETE_PADDLE1;
-                S_DELETE_PADDLE1: next_state = fin_P1_E ? S_DELETE_WAIT : S_DELETE_PADDLE1;
+               // S_DELETE_WAIT_PADDLE1: next_state = S_DELETE_PADDLE1;
+                // S_DELETE_PADDLE1: next_state = fin_P1_E ? S_DELETE_WAIT : S_DELETE_PADDLE1;
+                S_DELETE_PADDLE1: next_state = fin_P1_E ? S_DELETE : S_DELETE_PADDLE1;
 
-                S_DELETE_WAIT: next_state = S_DELETE;
-                S_DELETE: next_state = fin_B_E ? S_DELETE_WAIT_PADDLE2 : S_DELETE;
+               // S_DELETE_WAIT: next_state = S_DELETE;
+                // S_DELETE: next_state = fin_B_E ? S_DELETE_WAIT_PADDLE2 : S_DELETE;
+                S_DELETE: next_state = fin_B_E ? S_DELETE_PADDLE2 : S_DELETE;
 
-                S_DELETE_WAIT_PADDLE2: next_state = S_DELETE_PADDLE2;
+               // S_DELETE_WAIT_PADDLE2: next_state = S_DELETE_PADDLE2;
                 S_DELETE_PADDLE2: next_state = fin_P2_E ? S_DONE : S_DELETE_PADDLE2;
 
-                S_DONE: next_state = fin_game ? S_WAIT_FINISH :  S_PLOT_WAIT_SCORE1;
+                // S_DONE: next_state = fin_game ? S_FINISH :  S_PLOT_WAIT_SCORE1;
+                S_DONE: next_state = fin_game ? S_FINISH :  S_PLOT_SCORE1;
 
-                S_WAIT_FINISH: next_state = S_FINISH;
-                S_FINISH: next_state = fin_Text1 ? S_DISPLAY_DONE : S_FINISH;
+                //S_WAIT_FINISH: next_state = S_FINISH;
+                S_FINISH: next_state = fin_Text1 ? S_LOAD: S_FINISH;
 
             default: next_state = S_INIT;
         endcase
@@ -190,6 +207,7 @@ module Control( clock,
                 en_delayCounter = 1'b0;
                 en_Text1 = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_reset_player_scores = 1'b0;
 
 				en_B_shapeCounter_D = 1'b0;
@@ -210,6 +228,7 @@ module Control( clock,
                 sel_col = 3'd0;
 
                 en_reset_player_scores = 1'b0;
+                en_clr_scr = 1'b0;
                 ld_Val_out = 1'b1;
                 sel_text = 5'd0;
 
@@ -244,6 +263,7 @@ module Control( clock,
                 en_B_shapeCounter_E = 1'b0;
                 en_Text1 = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
 
@@ -267,6 +287,7 @@ module Control( clock,
 				en_B_shapeCounter_D = 1'b1;
                 en_Score2 = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
+                en_clr_scr = 1'b0;
 
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
@@ -292,6 +313,7 @@ module Control( clock,
                 en_B_shapeCounter_E = 1'b0;
                 en_Score1 = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
 
@@ -314,6 +336,7 @@ module Control( clock,
                 en_Score1 = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_Text1 = 1'b0;
                 en_reset_player_scores = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
@@ -345,6 +368,7 @@ module Control( clock,
                 en_P1_shapeCounter_E = 1'b0;
 
                 en_P2_shapeCounter_D = 1'b0;
+                en_clr_scr = 1'b0;
                 en_P2_shapeCounter_E = 1'b0; 
 
             end
@@ -365,6 +389,7 @@ module Control( clock,
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b1;
 
+                en_clr_scr = 1'b0;
                 en_Text1 = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
@@ -389,6 +414,7 @@ module Control( clock,
                 en_Score1 = 1'b0;
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b1;
+                en_clr_scr = 1'b0;
 
                 en_Text1 = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
@@ -412,6 +438,7 @@ module Control( clock,
                 sel_text = 5'd0;
 
                 en_Score1 = 1'b0;
+                en_clr_scr = 1'b0;
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
                 en_Text1 = 1'b0;
@@ -437,6 +464,7 @@ module Control( clock,
                 en_Score1 = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
                 sel_text = 5'd0;
+                en_clr_scr = 1'b0;
                 en_Score2 = 1'b0;
                 en_Text1 = 1'b0;
 
@@ -462,6 +490,7 @@ module Control( clock,
                 en_B_shapeCounter_E = 1'b0;
                 en_Score1 = 1'b0;
                 en_Text1 = 1'b0;
+                en_clr_scr = 1'b0;
 
                 en_Score2 = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
@@ -489,6 +518,7 @@ module Control( clock,
                 en_B_shapeCounter_E = 1'b0;
                 en_Score2 = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b1;
 
@@ -512,6 +542,7 @@ module Control( clock,
 
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
+                en_clr_scr = 1'b0;
                 en_Score2 = 1'b0;
 
                 en_P1_shapeCounter_D = 1'b0;
@@ -534,6 +565,7 @@ module Control( clock,
                 en_reset_player_scores = 1'b0;
 
 				en_B_shapeCounter_D = 1'b0;
+                en_clr_scr = 1'b0;
                 en_Score2 = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
 
@@ -564,6 +596,7 @@ module Control( clock,
 
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
+                en_clr_scr = 1'b0;
 
                 en_P2_shapeCounter_D = 1'b0;
                 en_P2_shapeCounter_E = 1'b1; 
@@ -585,6 +618,7 @@ module Control( clock,
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
                 en_Text1 = 1'b0;
+                en_clr_scr = 1'b0;
 
                 en_Score2 = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
@@ -608,6 +642,7 @@ module Control( clock,
 
                 en_Score2 = 1'b0;
                 en_Score1 = 1'b0;
+                en_clr_scr = 1'b0;
 				en_B_shapeCounter_D = 1'b0;
                 en_Text1 = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
@@ -619,181 +654,181 @@ module Control( clock,
                 en_P2_shapeCounter_E = 1'b0; 
 
             end
-            S_DISPLAY_WAIT_PADDLE1: 
-            begin
-                plot = 1'b1;
+            // S_DISPLAY_WAIT_PADDLE1: 
+            // begin
+            //     plot = 1'b1;
 
-                sel_out = 3'd1;
-                en_Score1 = 1'b0;
-                sel_col = 3'd2;
+            //     sel_out = 3'd1;
+            //     en_Score1 = 1'b0;
+            //     sel_col = 3'd2;
 
-                en_reset_player_scores = 1'b0;
-                sel_text = 5'd0;
-                en_Score2 = 1'b0;
-                ld_Val_out = 1'b0;
+            //     en_reset_player_scores = 1'b0;
+            //     sel_text = 5'd0;
+            //     en_Score2 = 1'b0;
+            //     ld_Val_out = 1'b0;
 
-                en_delayCounter = 1'b0;
+            //     en_delayCounter = 1'b0;
 
-				en_B_shapeCounter_D = 1'b0;
-                en_B_shapeCounter_E = 1'b0;
-                en_Text1 = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b0;
+            //     en_B_shapeCounter_E = 1'b0;
+            //     en_Text1 = 1'b0;
 
-                en_P1_shapeCounter_D = 1'b1;
-                en_P1_shapeCounter_E = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b1;
+            //     en_P1_shapeCounter_E = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b0;
-                en_P2_shapeCounter_E = 1'b0;
-            end
-            S_DISPLAY_PADDLE1:
-            begin
-                plot = 1'b1;
+            //     en_P2_shapeCounter_D = 1'b0;
+            //     en_P2_shapeCounter_E = 1'b0;
+            // end
+            // S_DISPLAY_PADDLE1:
+            // begin
+            //     plot = 1'b1;
 
-                sel_out = 3'd1;
-                sel_col = 3'd2;
-                en_Score2 = 1'b0;
+            //     sel_out = 3'd1;
+            //     sel_col = 3'd2;
+            //     en_Score2 = 1'b0;
 
-                en_Score1 = 1'b0;
-                ld_Val_out = 1'b0;
-                en_reset_player_scores = 1'b0;
-                sel_text = 5'd0;
+            //     en_Score1 = 1'b0;
+            //     ld_Val_out = 1'b0;
+            //     en_reset_player_scores = 1'b0;
+            //     sel_text = 5'd0;
 
-                en_delayCounter = 1'b0;
+            //     en_delayCounter = 1'b0;
 
-				en_B_shapeCounter_D = 1'b0;
-                en_B_shapeCounter_E = 1'b0;
-                en_Text1 = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b0;
+            //     en_B_shapeCounter_E = 1'b0;
+            //     en_Text1 = 1'b0;
 
-                en_P1_shapeCounter_D = 1'b1;
-                en_P1_shapeCounter_E = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b1;
+            //     en_P1_shapeCounter_E = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b0;
-                en_P2_shapeCounter_E = 1'b0;
-            end
-            S_DISPLAY_WAIT_BALL:
-            begin
-                plot = 1'b1;
+            //     en_P2_shapeCounter_D = 1'b0;
+            //     en_P2_shapeCounter_E = 1'b0;
+            // end
+            // S_DISPLAY_WAIT_BALL:
+            // begin
+            //     plot = 1'b1;
 
-                sel_out = 3'd0;
-                sel_col = 3'd0;
+            //     sel_out = 3'd0;
+            //     sel_col = 3'd0;
 
-                ld_Val_out = 1'b0;
-                en_Score1 = 1'b0;
-                sel_text = 5'd0;
-                en_Score2 = 1'b0;
+            //     ld_Val_out = 1'b0;
+            //     en_Score1 = 1'b0;
+            //     sel_text = 5'd0;
+            //     en_Score2 = 1'b0;
  
-                en_reset_player_scores = 1'b0;
-                en_delayCounter = 1'b0;
+            //     en_reset_player_scores = 1'b0;
+            //     en_delayCounter = 1'b0;
 
-				en_B_shapeCounter_D = 1'b1;
-                en_B_shapeCounter_E = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b1;
+            //     en_B_shapeCounter_E = 1'b0;
 
-                en_Text1 = 1'b0;
-                en_P1_shapeCounter_D = 1'b0;
-                en_P1_shapeCounter_E = 1'b0;
+            //     en_Text1 = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b0;
+            //     en_P1_shapeCounter_E = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b0;
-                en_P2_shapeCounter_E = 1'b0; 
-            end
-            S_DISPLAY_BALL:
-            begin
-                plot = 1'b1;
+            //     en_P2_shapeCounter_D = 1'b0;
+            //     en_P2_shapeCounter_E = 1'b0; 
+            // end
+            // S_DISPLAY_BALL:
+            // begin
+            //     plot = 1'b1;
 
-                sel_out = 3'd0;
-                sel_col = 3'd0;
+            //     sel_out = 3'd0;
+            //     sel_col = 3'd0;
 
-                ld_Val_out = 1'b0;
+            //     ld_Val_out = 1'b0;
  
-                en_Score2 = 1'b0;
-                en_reset_player_scores = 1'b0;
-                sel_text = 5'd0;
-                en_Score1 = 1'b0;
-                en_delayCounter = 1'b0;
+            //     en_Score2 = 1'b0;
+            //     en_reset_player_scores = 1'b0;
+            //     sel_text = 5'd0;
+            //     en_Score1 = 1'b0;
+            //     en_delayCounter = 1'b0;
 
-				en_B_shapeCounter_D = 1'b1;
-                en_B_shapeCounter_E = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b1;
+            //     en_B_shapeCounter_E = 1'b0;
 
-                en_P1_shapeCounter_D = 1'b0;
-                en_Text1 = 1'b0;
-                en_P1_shapeCounter_E = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b0;
+            //     en_Text1 = 1'b0;
+            //     en_P1_shapeCounter_E = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b0;
-                en_P2_shapeCounter_E = 1'b0; 
-            end
-            S_DISPLAY_WAIT_PADDLE2:
-            begin
-                plot = 1'b1;
+            //     en_P2_shapeCounter_D = 1'b0;
+            //     en_P2_shapeCounter_E = 1'b0; 
+            // end
+            // S_DISPLAY_WAIT_PADDLE2:
+            // begin
+            //     plot = 1'b1;
 
-                sel_out = 3'd2;
-                sel_col = 3'd2;
+            //     sel_out = 3'd2;
+            //     sel_col = 3'd2;
 
-                ld_Val_out = 1'b0;
-                en_Score2 = 1'b0;
+            //     ld_Val_out = 1'b0;
+            //     en_Score2 = 1'b0;
  
-                en_delayCounter = 1'b0;
-                sel_text = 5'd0;
-                en_reset_player_scores = 1'b0;
-                en_Score1 = 1'b0;
+            //     en_delayCounter = 1'b0;
+            //     sel_text = 5'd0;
+            //     en_reset_player_scores = 1'b0;
+            //     en_Score1 = 1'b0;
 
-				en_B_shapeCounter_D = 1'b0;
-                en_B_shapeCounter_E = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b0;
+            //     en_B_shapeCounter_E = 1'b0;
 
-                en_P1_shapeCounter_D = 1'b0;
-                en_P1_shapeCounter_E = 1'b0;
-                en_Text1 = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b0;
+            //     en_P1_shapeCounter_E = 1'b0;
+            //     en_Text1 = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b1;
-                en_P2_shapeCounter_E = 1'b0;
-            end
-            S_DISPLAY_PADDLE2:
-            begin
-                plot = 1'b1;
+            //     en_P2_shapeCounter_D = 1'b1;
+            //     en_P2_shapeCounter_E = 1'b0;
+            // end
+            // S_DISPLAY_PADDLE2:
+            // begin
+            //     plot = 1'b1;
 
-                sel_out = 3'd2;
-                sel_col = 3'd2;
+            //     sel_out = 3'd2;
+            //     sel_col = 3'd2;
 
-                ld_Val_out = 1'b0;
+            //     ld_Val_out = 1'b0;
  
-                en_Score2 = 1'b0;
-                sel_text = 5'd0;
-                en_delayCounter = 1'b0;
-                en_reset_player_scores = 1'b0;
+            //     en_Score2 = 1'b0;
+            //     sel_text = 5'd0;
+            //     en_delayCounter = 1'b0;
+            //     en_reset_player_scores = 1'b0;
 
-                en_Text1 = 1'b0;
-                en_Score1 = 1'b0;
-				en_B_shapeCounter_D = 1'b0;
-                en_B_shapeCounter_E = 1'b0;
+            //     en_Text1 = 1'b0;
+            //     en_Score1 = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b0;
+            //     en_B_shapeCounter_E = 1'b0;
 
-                en_P1_shapeCounter_D = 1'b0;
-                en_P1_shapeCounter_E = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b0;
+            //     en_P1_shapeCounter_E = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b1;
-                en_P2_shapeCounter_E = 1'b0;
-            end
-            S_DISPLAY_DONE:
-            begin
-                plot = 1'b0;
+            //     en_P2_shapeCounter_D = 1'b1;
+            //     en_P2_shapeCounter_E = 1'b0;
+            // end
+            // S_DISPLAY_DONE:
+            // begin
+            //     plot = 1'b0;
 
-                sel_out = 3'd0;
-                sel_col = 3'd0;
+            //     sel_out = 3'd0;
+            //     sel_col = 3'd0;
 
-                ld_Val_out = 1'b0;                
-                sel_text = 5'd0;
+            //     ld_Val_out = 1'b0;                
+            //     sel_text = 5'd0;
 
-                en_Text1 = 1'b0;
-                en_reset_player_scores = 1'b0;
-                en_delayCounter = 1'b0;
+            //     en_Text1 = 1'b0;
+            //     en_reset_player_scores = 1'b0;
+            //     en_delayCounter = 1'b0;
 
-				en_B_shapeCounter_D = 1'b0;
-                en_Score2 = 1'b0;
-                en_B_shapeCounter_E = 1'b0;
+			// 	en_B_shapeCounter_D = 1'b0;
+            //     en_Score2 = 1'b0;
+            //     en_B_shapeCounter_E = 1'b0;
 
-                en_Score1 = 1'b0;
-                en_P1_shapeCounter_D = 1'b0;
-                en_P1_shapeCounter_E = 1'b0;
+            //     en_Score1 = 1'b0;
+            //     en_P1_shapeCounter_D = 1'b0;
+            //     en_P1_shapeCounter_E = 1'b0;
 
-                en_P2_shapeCounter_D = 1'b0;
-                en_P2_shapeCounter_E = 1'b0;
-            end
+            //     en_P2_shapeCounter_D = 1'b0;
+            //     en_P2_shapeCounter_E = 1'b0;
+            // end
             S_PLOT_WAIT_SCORE1:
             begin
                 plot = 1'b1;
@@ -811,6 +846,7 @@ module Control( clock,
                 en_B_shapeCounter_E = 1'b0;
 
                 en_Score1 = 1'b1;
+                en_clr_scr = 1'b0;
                 en_Score2 = 1'b0;
                 en_P1_shapeCounter_D = 1'b0;
                 en_reset_player_scores = 1'b0;
@@ -837,6 +873,7 @@ module Control( clock,
                 en_Score2 = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_Score1 = 1'b1;
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
@@ -861,6 +898,7 @@ module Control( clock,
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_Score1 = 1'b0;
                 en_Score2 = 1'b1;
                 en_P1_shapeCounter_D = 1'b0;
@@ -886,6 +924,7 @@ module Control( clock,
 				en_B_shapeCounter_D = 1'b0;
                 en_B_shapeCounter_E = 1'b0;
 
+                en_clr_scr = 1'b0;
                 en_Score1 = 1'b0;
                 en_Score2 = 1'b1;
                 
@@ -916,6 +955,7 @@ module Control( clock,
                 
 
                 en_Text1 = 1'b1;
+                en_clr_scr = 1'b0;
                 
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
@@ -941,9 +981,68 @@ module Control( clock,
 
                 en_Score1 = 1'b0;
                 en_Score2 = 1'b0;
+                en_clr_scr = 1'b0;
 
                 en_Text1 = 1'b1;
                 
+                en_P1_shapeCounter_D = 1'b0;
+                en_P1_shapeCounter_E = 1'b0;
+
+                en_P2_shapeCounter_D = 1'b0;
+                en_P2_shapeCounter_E = 1'b0;
+            end
+            S_WAIT_CLEAR:
+            begin
+                plot = 1'b1;
+
+                sel_out = 3'd7;
+                sel_col = 3'd3;
+
+                ld_Val_out = 1'b0;                
+                sel_text = 5'd15;
+
+                en_delayCounter = 1'b0;
+
+                en_reset_player_scores = 1'b0;
+				en_B_shapeCounter_D = 1'b0;
+                en_B_shapeCounter_E = 1'b0;
+
+                en_Score1 = 1'b0;
+                en_Score2 = 1'b0;
+
+                en_Text1 = 1'b0;
+                
+                en_clr_scr = 1'b1;
+
+                en_P1_shapeCounter_D = 1'b0;
+                en_P1_shapeCounter_E = 1'b0;
+
+                en_P2_shapeCounter_D = 1'b0;
+                en_P2_shapeCounter_E = 1'b0;
+            end
+            S_CLEAR:
+            begin
+                plot = 1'b1;
+
+                sel_out = 3'd7;
+                sel_col = 3'd3;
+
+                ld_Val_out = 1'b0;                
+                sel_text = 5'd15;
+
+                en_delayCounter = 1'b0;
+
+                en_reset_player_scores = 1'b0;
+				en_B_shapeCounter_D = 1'b0;
+                en_B_shapeCounter_E = 1'b0;
+
+                en_Score1 = 1'b0;
+                en_Score2 = 1'b0;
+
+                en_Text1 = 1'b0;
+                
+                en_clr_scr = 1'b1;
+
                 en_P1_shapeCounter_D = 1'b0;
                 en_P1_shapeCounter_E = 1'b0;
 

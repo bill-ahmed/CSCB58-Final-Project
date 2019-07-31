@@ -3,9 +3,7 @@ module Datapath(clock,
                 gameSpeed,
                 
                 HEX0,
-                HEX1,
                 HEX2,
-                HEX3,
 
                 ld_Val,
 
@@ -18,6 +16,7 @@ module Datapath(clock,
                 sel_text,
 
                 en_reset_player_scores,
+                en_clr_scr,
 
                 en_B_shapeCounter_D,
                 en_B_shapeCounter_E,
@@ -40,6 +39,7 @@ module Datapath(clock,
                 colour_out,
 
                 fin_Wait,
+                fin_clr_scr,
 
                 fin_Text1,
                 fin_game,
@@ -98,6 +98,8 @@ module Datapath(clock,
         input en_Score2;
 
         input en_Text1;
+        
+        input en_clr_scr;
 
         input en_reset_player_scores;
     
@@ -120,12 +122,11 @@ module Datapath(clock,
     output fin_S2_D;
     output fin_game;
     output fin_Text1;
+    output fin_clr_scr;
 
     /* TO THE HEX DISPLAY */
     output [6:0] HEX0;
-    output [6:0] HEX1;
     output [6:0] HEX2;
-    output [6:0] HEX3;
 
 /* ----------- END OUTPUT SIGNALS ----------- */
 
@@ -157,6 +158,8 @@ module Datapath(clock,
     reg [5:0] Score2;
 
     reg [5:0] Text1;
+
+    reg [14:0] clr_scr;
 
     // Registers for ball direction
     reg B_X_dir;
@@ -211,6 +214,8 @@ module Datapath(clock,
     wire fin_game;
     wire fin_Text1;
 
+    wire fin_clr_scr;
+
     wire [6:0] hexValue_S1;
     wire [6:0] hexValue_S2;
 
@@ -253,6 +258,8 @@ module Datapath(clock,
     assign fin_game = (player_1_score == 4'd10) | (player_2_score == 4'd10);
     assign fin_Text1 = (Text1 == 6'd63) ? 1 : 0;
 
+    assign fin_clr_scr = (clr_scr == 15'd32767) ? 1 : 0;
+
 
 /* ------------- END VARIABLES ------------- */
 
@@ -270,6 +277,14 @@ module Datapath(clock,
             delayCounter <= gameSpeed ;   //28'd833333 - 1'b1;
         else if(en_delayCounter == 1'b1)
             delayCounter <= delayCounter - 1'b1;
+    end
+
+
+
+    always @(posedge clock)
+    begin
+        if (en_clr_scr == 1'b1)
+            clr_scr <= clr_scr + 1'b1;
     end
 /* ------------- END COUNTERS ------------- */
 
@@ -630,6 +645,7 @@ module Datapath(clock,
                 3'd3: x_out = OG_S1_x + Score1[2:0];
                 3'd4: x_out = OG_S2_x + Score2[2:0];
                 3'd5: x_out = PL_SPLASH_x + Text1[2:0];
+                3'd7: x_out = 8'd0 + clr_scr[7:0];
             endcase
         end
 
@@ -643,6 +659,7 @@ module Datapath(clock,
                 3'd3: y_out = OG_S1_y + Score1[5:3];
                 3'd4: y_out = OG_S2_y + Score2[5:3];
                 3'd5: y_out = PL_SPLASH_y + Text1[5:3];
+                3'd7: y_out = 7'd0 + clr_scr[14:8];
             endcase
         end
 
