@@ -6,7 +6,13 @@ module Motion_Pong
 		// Your inputs and outputs here
         SW,
         HEX0,
+		HEX1,
         HEX2,
+		HEX3,
+		HEX4,
+		HEX5,
+		KEY,
+		GPIO,
 		// The ports below are for the VGA output.  Do not change.
 		VGA_CLK,   						//	VGA Clock
 		VGA_HS,							//	VGA H_SYNC
@@ -22,8 +28,12 @@ module Motion_Pong
 	
 	// Declare your inputs and outputs here
 	input   [17:0]  SW;
+	input [3:0] KEY;
+	inout [35:0] GPIO;
 
-    output [6:0] HEX0, HEX2;
+
+    output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
+	wire [9:0] sensor_1, sensor_2;
 
 
 	// Do not change the following outputs
@@ -74,50 +84,168 @@ module Motion_Pong
     
     // Instantiate the wires between the control and datapath
     // register wires
-    wire ld_x, ld_y;
+    wire ld_Val;
 
     // counter wires
-    wire enable_posCounter, enable_waitCounter;
+    wire en_B_shapeCounter_D, en_B_shapeCounter_E;
+	wire en_P1_shapeCounter_D, en_P1_shapeCounter_E;
+	wire en_P2_shapeCounter_D, en_P2_shapeCounter_E;
+	wire en_Score1;
+	wire en_Score2;
+	wire en_delayCounter;
+	wire en_Text1;
+	wire en_reset_player_scores;
 
     // helper wires
-    wire waited, done, sel_col;
+    wire fin_B_D, fin_B_E;
+	wire fin_P1_D, fin_P1_E;
+	wire fin_P2_D, fin_P2_E;
+	wire fin_Wait;
+	wire fin_S1_D;
+	wire fin_S2_D;
+	wire fin_Text1;
+	wire fin_game;
+	wire [2:0] sel_out;
+	wire [2:0] sel_col;
+	wire [4:0] sel_text;
+	reg [27:0] gameSpeed;		// Determine the speed of the game, set by the user
+
+	always @(posedge CLOCK_50)
+	begin
+		if(KEY[0] == 1'b0)
+			gameSpeed <= 28'd3333332 - 1'b1;
+		else if(KEY[1] == 1'b0)
+			gameSpeed <= 28'd1666666 - 1'b1;
+		else if(KEY[2] == 1'b0)
+			gameSpeed <= 28'd833333 - 1'b1;
+		else if(KEY[3] == 1'b0)
+			gameSpeed <= 28'd416666 - 1'b1;
+	end
 
     // instantiate a control module
     Control control0(
         .clock(CLOCK_50),
         .resetn(resetn),
-        .go(SW[17]),
+        .go(((~ KEY[0]) | (~ KEY[1]) | (~ KEY[2]) | (~ KEY[3]))),
 
-        .done(done),
-        .waited(waited),
+        .fin_B_D(fin_B_D),
+		.fin_B_E(fin_B_E),
 
-        .plot(writeEn),
-        .ld_x_out(ld_x),
-        .ld_y_out(ld_y),
-        .sel_col(sel_col),
-        .enable_posCounter(enable_posCounter),
-        .enable_waitCounter(enable_waitCounter),
+		.fin_P1_D(fin_P1_D),
+		.fin_P1_E(fin_P1_E),
 
-        .HEX0(HEX0),
-        .HEX2(HEX2)
+		.fin_P2_D(fin_P2_D),
+		.fin_P2_E(fin_P2_E),
+		
+		.fin_S1_D(fin_S1_D),
+		.fin_S2_D(fin_S2_D),
+
+		.fin_game(fin_game),
+		.fin_Text1(fin_Text1),
+
+        .ld_Val_out(ld_Val),
+
+        .en_B_shapeCounter_D(en_B_shapeCounter_D),
+		.en_B_shapeCounter_E(en_B_shapeCounter_E),
+
+		.en_P1_shapeCounter_D(en_P1_shapeCounter_D),
+		.en_P1_shapeCounter_E(en_P1_shapeCounter_E),
+
+		.en_P2_shapeCounter_D(en_P2_shapeCounter_D),
+		.en_P2_shapeCounter_E(en_P2_shapeCounter_E),
+
+		.en_Score1(en_Score1),
+		.en_Score2(en_Score2),
+
+		.en_Text1(en_Text1),
+
+		.en_reset_player_scores(en_reset_player_scores),
+
+		.fin_Wait(fin_Wait),
+        .en_delayCounter(en_delayCounter),
+
+		.plot(writeEn),
+		.sel_out(sel_out),
+		.sel_text(sel_text),
+		.sel_col(sel_col)
     );
 
     // instantiate a datapath module
     Datapath datapath0(
         .clock(CLOCK_50),
         .resetn(resetn),
+		.gameSpeed(gameSpeed),
 
-        .data(SW[9:0]),
-        .ld_x(ld_x),
-        .ld_y(ld_y),
-        .sel_col(sel_col),
-        .enable_posCounter(enable_posCounter),
-        .enable_waitCounter(enable_waitCounter),
+        .data(SW[17:0]),
+		.sensor_1(sensor_1),
+		.sensor_2(sensor_2),
+
+		.HEX0(HEX0),
+		.HEX1(HEX1),
+        .HEX2(HEX2),
+		.HEX3(HEX3),
+
+		.sel_out(sel_out),
+		.sel_col(sel_col),
+		.sel_text(sel_text),
+
+    	.ld_Val(ld_Val),
+
+		.en_Text1(en_Text1),
+
+		.en_Score1(en_Score1),
+		.en_Score2(en_Score2),
+
+        .en_B_shapeCounter_D(en_B_shapeCounter_D),
+		.en_B_shapeCounter_E(en_B_shapeCounter_E),
+
+		.en_P1_shapeCounter_D(en_P1_shapeCounter_D),
+		.en_P1_shapeCounter_E(en_P1_shapeCounter_E),
+
+		.en_P2_shapeCounter_D(en_P2_shapeCounter_D),
+		.en_P2_shapeCounter_E(en_P2_shapeCounter_E),
+
+        .en_delayCounter(en_delayCounter),
+
+		.en_reset_player_scores(en_reset_player_scores),
 
         .x_out(x),
         .y_out(y),
-        .done(done),
-        .waited(waited),
-        .colour_out(colour)
+		.colour_out(colour),
+
+        .fin_Wait(fin_Wait),
+
+		.fin_Text1(fin_Text1),
+		.fin_game(fin_game),
+
+		.fin_S1_D(fin_S1_D),
+		.fin_S2_D(fin_S2_D),
+
+        .fin_B_D(fin_B_D),
+		.fin_B_E(fin_B_E),
+
+		.fin_P1_D(fin_P1_D),
+		.fin_P1_E(fin_P1_E),
+
+		.fin_P2_D(fin_P2_D),
+		.fin_P2_E(fin_P2_E)
     );
+
+	 UltrasonicSensor mySensor(
+        .CLOCK_50(CLOCK_50),
+        .GPIO(GPIO[35:0]),
+        .sensor_1(sensor_1),
+        .sensor_2(sensor_2),
+    );
+
+	// Hex_display hd4(
+    //     .IN(sensor_1),
+    //     .OUT(HEX4)
+    // );
+
+	// Hex_display hd5(
+    //     .IN(sensor_2),
+    //     .OUT(HEX5)
+    // );
+
 endmodule
