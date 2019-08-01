@@ -113,15 +113,23 @@ _ TO-DO:
 
 
 *** August 2nd, 2019 ***
+-DONE:	
+	- Finished the points system
+	- Finished the end game splash screen
+	- Removed title screen when the game begins
+	- RAINBOW mode
+	- Finished video presentation
 
 
 References
 ----------
-TBA
+Ultrasonic length estimator
+ORIGINAL SOURCE: https://github.com/mohammadmoustafa/CSCB58-Winter-2018-Project
 
 
 Repo & Video
 ------------
-TBA
+https://github.com/bill-ahmed/CSCB58-Final-Project
+https://www.youtube.com/watch?v=NO6y1-P6fCI&feature=youtu.be
 
 
