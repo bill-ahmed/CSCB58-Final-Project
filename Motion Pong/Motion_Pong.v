@@ -27,7 +27,7 @@ module Motion_Pong
 	input			CLOCK_50;				//	50 MHz
 	
 	// Declare your inputs and outputs here
-	input   [17:0]  SW;
+	input [17:0]  SW;
 	input [3:0] KEY;
 	inout [35:0] GPIO;
 
@@ -82,34 +82,49 @@ module Motion_Pong
 	// Put your code here. Your code should produce signals x,y,colour and writeEn/plot
 	// for the VGA controller, in addition to any other functionality your design may require.
     
-    // Instantiate the wires between the control and datapath
-    // register wires
-    wire ld_Val;
+	/* ---------- WIRES ----------*/
+		/*
+		*	Instantiate the wires required for the communication between
+		*	the CONTROL module and the DATAPATH module.
+		*/
 
-    // counter wires
-    wire en_B_shapeCounter_D, en_B_shapeCounter_E;
-	wire en_P1_shapeCounter_D, en_P1_shapeCounter_E;
-	wire en_P2_shapeCounter_D, en_P2_shapeCounter_E;
-	wire en_Score1;
-	wire en_Score2;
-	wire en_delayCounter;
-	wire en_Text1;
-	wire en_reset_player_scores;
-	wire en_clr_scr;
+		/* CONTROL WIRES */
+		wire [2:0] sel_out;				// Control wire to determine the shape to VGA
+		wire [2:0] sel_col;				// Control wire to determine the colour to VGA
+		wire [4:0] sel_text;			// Control wire to determine the letter to VGA
 
-    // helper wires
-    wire fin_B_D, fin_B_E;
-	wire fin_P1_D, fin_P1_E;
-	wire fin_P2_D, fin_P2_E;
-	wire fin_Wait;
-	wire fin_S1_D;
-	wire fin_S2_D;
-	wire fin_Text1;
-	wire fin_game;
-	wire fin_clr_scr;
-	wire [2:0] sel_out;
-	wire [2:0] sel_col;
-	wire [4:0] sel_text;
+		/* ENABLE SIGNAL WIRES */
+		wire ld_Val;					// Enable signal to load the required values into the registers
+		wire en_Text1;					// Enable signal to start the counter to draw letters for the final splash screen
+		wire en_Text2;					// Enable signal to start the counter to draw letters for the final splash screen
+		wire en_Score1;					// Enable signal to start the counter to draw the score 1
+		wire en_Score2;					// Enable signal to start the counter to draw the score 2
+		wire en_clr_scr;				// Enable signal to start the counter to clear the screen
+		wire en_delayCounter;			// Enable signal to start the counter to determine the game speed
+		wire en_B_shapeCounter_D;		// Enable signal to start the counter to draw the Ball
+		wire en_B_shapeCounter_E;		// Enable signal to start the counter to erase the Ball
+		wire en_P1_shapeCounter_D;		// Enable signal to start the counter to draw the Paddle 1
+		wire en_P1_shapeCounter_E;		// Enable signal to start the counter to erase the Paddle 1	
+		wire en_P2_shapeCounter_D;		// Enable signal to start the counter to draw the Paddle 2
+		wire en_P2_shapeCounter_E;		// Enable signal to start the counter to erase the Paddle 2
+		wire en_reset_player_scores;	// Enable signal to reset the scores after the game is finished
+
+
+		/* HELPER WIRES */
+		wire fin_B_D;					// Helper wire to determine whether the Ball has been drawn
+		wire fin_B_E;					// Helper wire to determine whether the Ball has been erased
+		wire fin_P1_D;					// Helper wire to determine whether the Paddle 1 has been drawn
+		wire fin_P1_E;					// Helper wire to determine whether the Paddle 1 has been erased
+		wire fin_P2_D;					// Helper wire to determine whether the Paddle 2 has been drawn
+		wire fin_P2_E;					// Helper wire to determine whether the Paddle 2 has been erased
+		wire fin_S1_D;					// Helper wire to determine whether the Score 1 has been drawn
+		wire fin_S2_D;					// Helper wire to determine whether the Score 2 has been drawn
+		wire fin_Wait;					// Helper wire to determine whether the waiting is finished
+		wire fin_game;					// Helper wire to determine whether the game is finished
+		wire fin_Text1;					// Helper wire to determine whether the a letter is drawn
+		wire fin_Text2;					// Helper wire to determine whether the a letter is drawn
+		wire fin_clr_scr;				// Helper wire to determine whether the screen is cleared
+    
 	reg [27:0] gameSpeed;		// Determine the speed of the game, set by the user
 
 	always @(posedge CLOCK_50)
@@ -124,11 +139,12 @@ module Motion_Pong
 			gameSpeed <= 28'd416666 - 1'b1;
 	end
 
-    // instantiate a control module
+    // Instatiate a CONTROL module
     Control control0(
         .clock(CLOCK_50),
         .resetn(resetn),
         .go(((~ KEY[0]) | (~ KEY[1]) | (~ KEY[2]) | (~ KEY[3]))),
+		.rainbow(SW[17]),
 
         .fin_B_D(fin_B_D),
 		.fin_B_E(fin_B_E),
@@ -144,8 +160,9 @@ module Motion_Pong
 
 		.fin_game(fin_game),
 		.fin_Text1(fin_Text1),
-		.fin_clr_scr(fin_clr_scr),
+		.fin_Text2(fin_Text2),
 
+		.fin_clr_scr(fin_clr_scr),
         .ld_Val_out(ld_Val),
 
         .en_B_shapeCounter_D(en_B_shapeCounter_D),
@@ -161,6 +178,7 @@ module Motion_Pong
 		.en_Score2(en_Score2),
 
 		.en_Text1(en_Text1),
+		.en_Text2(en_Text2),
 		.en_clr_scr(en_clr_scr),
 
 		.en_reset_player_scores(en_reset_player_scores),
@@ -194,6 +212,7 @@ module Motion_Pong
     	.ld_Val(ld_Val),
 
 		.en_Text1(en_Text1),
+		.en_Text2(en_Text2),
 
 		.en_Score1(en_Score1),
 		.en_Score2(en_Score2),
@@ -216,9 +235,10 @@ module Motion_Pong
         .y_out(y),
 		.colour_out(colour),
 
-        .fin_Wait(fin_Wait),
-
+		.fin_Text2(fin_Text2),
 		.fin_Text1(fin_Text1),
+
+        .fin_Wait(fin_Wait),
 		.fin_clr_scr(fin_clr_scr),
 
 		.fin_game(fin_game),
